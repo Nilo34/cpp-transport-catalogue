@@ -7,6 +7,6 @@
 
 int main () {
     transport_catalogue::TransportCatalogue TCatalogue;
-    transport_catalogue::reader::Input(TCatalogue);
-    transport_catalogue::request::EnquiryReader(TCatalogue);
+    transport_catalogue::reader::FillInTheData(TCatalogue);
+    transport_catalogue::request::ReadEnquiry(TCatalogue);
 }

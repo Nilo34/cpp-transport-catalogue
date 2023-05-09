@@ -3,7 +3,6 @@
 #include <cmath>
 
 namespace transport_catalogue {
-namespace detail {
 namespace geo {
 
 struct Coordinates {
@@ -29,5 +28,4 @@ inline double ComputeDistance(Coordinates from, Coordinates to) {
 }
 
 } //end namespace geo
-} //end namespace detail
 } //end namespace transport_catalogue

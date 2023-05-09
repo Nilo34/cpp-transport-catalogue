@@ -15,16 +15,16 @@ void OBus(TransportCatalogue& tc, std::string_view query_string) {
     auto start_indent = 4;
     
     query_string = query_string.substr(start_indent);
-    Bus* bus = tc.GetBus(query_string);
+    const Bus* bus = tc.GetBus(query_string);
             
    using namespace std::string_literals;
    if (bus != nullptr) {
        std::cout << "Bus "s << bus->name << ": "
                  << bus->stops.size() << " stops on route, "s
-                 << tc.NumberOfUniqueStops(bus) << " unique stops, "s
-                 << std::setprecision(6) << tc.DistanceTravelled(bus)
+                 << tc.GetNumberOfUniqueStops(bus) << " unique stops, "s
+                 << std::setprecision(6) << tc.GetDistanceTravelledBus(bus)
                  << " route length, "s
-                 << tc.DistanceTravelled(bus)/tc.GetDistanceBetweenVisitedStopsOnTheGround(bus)
+                 << tc.GetDistanceTravelledBus(bus)/tc.GetDistanceBetweenVisitedStopsOnTheGround(bus)
                  << " curvature"s
                  << std::endl;
    } else {
@@ -36,11 +36,11 @@ void OStop(TransportCatalogue& tc, std::string_view query_string) {
     auto start_indent = 5;
     
     query_string = query_string.substr(start_indent);
-    Stop* stop = tc.GetStop(query_string);
+    const Stop* stop = tc.GetStop(query_string);
     
     using namespace std::string_literals;
     if (stop != nullptr) {
-        std::unordered_set<Bus*> bus_roster = tc.UniqueBusesOfStop(stop);
+        std::unordered_set<Bus*> bus_roster = tc.GetUniqueBusesOfStop(stop);
         
         if (bus_roster.size() > 0) {
             std::cout << "Stop "s << query_string << ": buses"s;
@@ -65,7 +65,7 @@ void OStop(TransportCatalogue& tc, std::string_view query_string) {
     
 }
 
-void EnquiryReader(TransportCatalogue& tc) {
+void ReadEnquiry(TransportCatalogue& tc) {
     
     std::string number_of_requests_s;
     std::getline(std::cin, number_of_requests_s);

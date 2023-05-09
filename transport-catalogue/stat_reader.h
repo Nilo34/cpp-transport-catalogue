@@ -8,7 +8,7 @@ namespace request {
 void OBus(TransportCatalogue& tc, std::string_view query_string);
 void OStop(TransportCatalogue& tc, std::string_view query_string);
 
-void EnquiryReader(TransportCatalogue& tc);
+void ReadEnquiry(TransportCatalogue& tc);
 
 } //end namespace request
 } //end namespace transport_catalogue

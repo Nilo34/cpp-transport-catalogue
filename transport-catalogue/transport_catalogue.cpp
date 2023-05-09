@@ -20,38 +20,39 @@ void TransportCatalogue::AddBus(Bus&& bus) {
     }
 }
 
-void TransportCatalogue::AddDistanc(const Stop* stop1, const Stop* stop2, double&& distance) {
-    distances_between_stops_.insert({std::make_pair(stop1, stop2), std::move(distance)});
+void TransportCatalogue::AddDistanc(const Stop* stop1, const Stop* stop2, double distance) {
+    distances_between_stops_.insert({std::make_pair(stop1, stop2), distance});
     
 }
 
-Stop* TransportCatalogue::GetStop(std::string_view stop_name) {
+const Stop* TransportCatalogue::GetStop(std::string_view stop_name) const {
     if (map_to_stops_.count(stop_name) != 0) {
         return map_to_stops_.at(stop_name);
     }
     return nullptr;
 }
 
-Bus* TransportCatalogue::GetBus(std::string_view bus_name) {
+const Bus* TransportCatalogue::GetBus(std::string_view bus_name) const {
     if (map_to_buses_.count(bus_name) != 0) {
         return map_to_buses_.at(bus_name);
     }
     return nullptr;
 }
 
-int TransportCatalogue::NumberOfUniqueStops(Bus* bus) {
+int TransportCatalogue::GetNumberOfUniqueStops(const Bus* bus) const {
     std::unordered_set<Stop*> buffer;
     buffer.insert(bus->stops.begin(), bus->stops.end());
     return buffer.size();
 }
 
-double TransportCatalogue::GetDistanceBetweenVisitedStopsOnTheGround(Bus* bus) {
+double TransportCatalogue::GetDistanceBetweenVisitedStopsOnTheGround(const Bus* bus) const {
     double result = 0.0;
     size_t count_stops = bus->stops.size();
     
     for (int i=0; i < count_stops - 1; i++) {
-        result += detail::geo::ComputeDistance({bus->stops.at(i)->latitude, bus->stops.at(i)->longitude},
-                                  {bus->stops.at(i+1)->latitude, bus->stops.at(i+1)->longitude});
+        //result += geo::ComputeDistance({bus->stops.at(i)->latitude, bus->stops.at(i)->longitude},
+        //                          {bus->stops.at(i+1)->latitude, bus->stops.at(i+1)->longitude});
+        result += geo::ComputeDistance(bus->stops.at(i)->coord, bus->stops.at(i+1)->coord);
     }
     
     return result;
@@ -66,7 +67,7 @@ double TransportCatalogue::GetDistanceBetweenStops(const Stop* stop1, const Stop
     return 0;
 }
 
-double TransportCatalogue::DistanceTravelled(Bus* bus) {
+double TransportCatalogue::GetDistanceTravelledBus(const Bus* bus) const {
     double result = 0.0;
     size_t count_stops = bus->stops.size();
     
@@ -77,7 +78,7 @@ double TransportCatalogue::DistanceTravelled(Bus* bus) {
     return result;
 }
 
-std::unordered_set<Bus*> TransportCatalogue::UniqueBusesOfStop(Stop* stop) {
+std::unordered_set<Bus*> TransportCatalogue::GetUniqueBusesOfStop(const Stop* stop) const {
     std::unordered_set<Bus*> buffer;
     buffer.insert(stop->buses.begin(), stop->buses.end());
     return buffer;
