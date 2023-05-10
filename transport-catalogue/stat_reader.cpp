@@ -11,7 +11,7 @@
 namespace transport_catalogue {
 namespace request {
 
-void OBus(TransportCatalogue& tc, std::string_view query_string) {
+void OutputTheBusData(const TransportCatalogue& tc, std::string_view query_string) {
     auto start_indent = 4;
     
     query_string = query_string.substr(start_indent);
@@ -32,7 +32,7 @@ void OBus(TransportCatalogue& tc, std::string_view query_string) {
    }
 }
 
-void OStop(TransportCatalogue& tc, std::string_view query_string) {
+void OutputTheStopData(const TransportCatalogue& tc, std::string_view query_string) {
     auto start_indent = 5;
     
     query_string = query_string.substr(start_indent);
@@ -65,7 +65,7 @@ void OStop(TransportCatalogue& tc, std::string_view query_string) {
     
 }
 
-void ReadEnquiry(TransportCatalogue& tc) {
+void ReadEnquiry(const TransportCatalogue& tc) {
     
     std::string number_of_requests_s;
     std::getline(std::cin, number_of_requests_s);
@@ -80,9 +80,9 @@ void ReadEnquiry(TransportCatalogue& tc) {
             std::getline(std::cin, read_line);
             
             if (read_line.substr(0, 3) == "Bus") {
-                OBus(tc, read_line);
+                OutputTheBusData(tc, read_line);
             } else if (read_line.substr(0, 4) == "Stop") {
-                OStop(tc, read_line);
+                OutputTheStopData(tc, read_line);
             }
         }
     }

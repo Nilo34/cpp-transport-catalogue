@@ -8,7 +8,7 @@
 namespace transport_catalogue {
 namespace reader {
 
-Stop IStop(std::string_view str) {
+Stop FillInTheStop(std::string_view str) {
     Stop result;
     
     auto start_indent = 5;
@@ -26,7 +26,7 @@ Stop IStop(std::string_view str) {
     return result;
 }
 
-void IDistances (std::string_view str, TransportCatalogue& tc) {
+void FillInTheDistances (std::string_view str, TransportCatalogue& tc) {
     auto start_indent = 5;
     auto start_parametr_stop = str.find(':');
     auto indent = 2;
@@ -56,7 +56,7 @@ void IDistances (std::string_view str, TransportCatalogue& tc) {
     
 }
 
-Bus IBus(std::string_view str, TransportCatalogue& tc) {
+Bus FillInTheBus(std::string_view str, TransportCatalogue& tc) {
     Bus result;
     
     auto start_indent = 4;
@@ -125,15 +125,15 @@ void FillInTheData(TransportCatalogue& tc) {
         }
         
         for (auto& stop: stops) {
-            tc.AddStop(IStop(stop));
+            tc.AddStop(FillInTheStop(stop));
         }
         
         for (auto& stop: stops) {
-            IDistances(stop, tc);
+            FillInTheDistances(stop, tc);
         }
         
         for (auto& bus: buses) {
-            tc.AddBus(IBus(bus, tc));
+            tc.AddBus(FillInTheBus(bus, tc));
         }
         
     }

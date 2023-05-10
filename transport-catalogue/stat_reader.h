@@ -5,10 +5,10 @@
 namespace transport_catalogue {
 namespace request {
 
-void OBus(TransportCatalogue& tc, std::string_view query_string);
-void OStop(TransportCatalogue& tc, std::string_view query_string);
+void OutputTheBusData(const TransportCatalogue& tc, std::string_view query_string);
+void OutputTheStopData(const TransportCatalogue& tc, std::string_view query_string);
 
-void ReadEnquiry(TransportCatalogue& tc);
+void ReadEnquiry(const TransportCatalogue& tc);
 
 } //end namespace request
 } //end namespace transport_catalogue

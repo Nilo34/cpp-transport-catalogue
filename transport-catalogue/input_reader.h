@@ -7,9 +7,9 @@
 namespace transport_catalogue {
 namespace reader {
 
-Stop IStop(std::string_view str);
-void IDistances (std::string_view str, TransportCatalogue& tc);
-Bus IBus(std::string_view str, TransportCatalogue& tc);
+Stop FillInTheStop(std::string_view str);
+void FillInTheDistances (std::string_view str, TransportCatalogue& tc);
+Bus FillInTheBus(std::string_view str, TransportCatalogue& tc);
 void FillInTheData(TransportCatalogue& tc);
 
 } //end namespace reader
