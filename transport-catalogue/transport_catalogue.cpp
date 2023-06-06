@@ -1,8 +1,14 @@
+#include "transport_catalogue.h"
+#include "geo.h"
+
+/*
+ * Здесь можно разместить код транспортного справочника
+ */
+
 #include <utility>
 #include <unordered_set>
 
-#include "transport_catalogue.h"
-#include "geo.h"
+//#include <iostream>
 
 namespace transport_catalogue {
 
@@ -25,14 +31,14 @@ void TransportCatalogue::AddDistanc(const Stop* stop1, const Stop* stop2, double
     
 }
 
-const Stop* TransportCatalogue::GetStop(std::string_view stop_name) const {
+Stop* TransportCatalogue::GetStop(std::string_view stop_name) {
     if (map_to_stops_.count(stop_name) != 0) {
         return map_to_stops_.at(stop_name);
     }
     return nullptr;
 }
 
-const Bus* TransportCatalogue::GetBus(std::string_view bus_name) const {
+Bus* TransportCatalogue::GetBus(std::string_view bus_name) {
     if (map_to_buses_.count(bus_name) != 0) {
         return map_to_buses_.at(bus_name);
     }
@@ -49,9 +55,7 @@ double TransportCatalogue::GetDistanceBetweenVisitedStopsOnTheGround(const Bus* 
     double result = 0.0;
     size_t count_stops = bus->stops.size();
     
-    for (int i=0; i < count_stops - 1; i++) {
-        //result += geo::ComputeDistance({bus->stops.at(i)->latitude, bus->stops.at(i)->longitude},
-        //                          {bus->stops.at(i+1)->latitude, bus->stops.at(i+1)->longitude});
+    for (size_t i=0; i < count_stops - 1; i++) {
         result += geo::ComputeDistance(bus->stops.at(i)->coord, bus->stops.at(i+1)->coord);
     }
     
@@ -71,7 +75,7 @@ double TransportCatalogue::GetDistanceTravelledBus(const Bus* bus) const {
     double result = 0.0;
     size_t count_stops = bus->stops.size();
     
-    for (int i=0; i < count_stops - 1; i++) {
+    for (size_t i=0; i < count_stops - 1; i++) {
         result += GetDistanceBetweenStops(bus->stops.at(i), bus->stops.at(i+1));
     }
     
@@ -82,6 +86,14 @@ std::unordered_set<Bus*> TransportCatalogue::GetUniqueBusesOfStop(const Stop* st
     std::unordered_set<Bus*> buffer;
     buffer.insert(stop->buses.begin(), stop->buses.end());
     return buffer;
+}
+
+std::unordered_map<std::string_view, Stop*> TransportCatalogue::GetMapToStop() const {
+    return map_to_stops_;
+}
+
+std::unordered_map<std::string_view, Bus*> TransportCatalogue::GetMapToBus() const {
+    return map_to_buses_;
 }
 
 } //end namespace transport_catalogue
