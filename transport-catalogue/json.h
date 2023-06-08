@@ -30,12 +30,12 @@ public:
     
     Node() = default;
     Node(std::nullptr_t);
-    Node(int value);
-    Node(double value);
-    Node(std::string value);
-    Node(bool value);
-    Node(Array array);
-    Node(Dict map);
+    
+    template <typename Value>
+    Node(Value value) 
+    : as_value_(std::move(value))
+    {
+    }
     
     bool IsInt() const;
     bool IsPureDouble() const; //Возвращает true, если в Node хранится double.

@@ -12,14 +12,25 @@
  *
  */
 
+#include "geo.h"
+
+#include <vector>
 #include <string>
 
-namespace domain {
+namespace transport_catalogue {
 
-struct StatRequest {
-    int id;
+struct Bus;
+
+struct Stop {
     std::string name;
-    std::string type;
+    geo::Coordinates coord;
+    std::vector<Bus*> buses;
 };
 
-} //end namespace request
+struct Bus {
+    std::string name;
+    std::vector<Stop*> stops;
+    bool is_roundtrip;
+};
+
+} //end namespace transport_catalogue

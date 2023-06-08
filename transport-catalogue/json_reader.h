@@ -13,11 +13,6 @@
 namespace transport_catalogue {
 namespace handling_json {
 
-void SplittingDocument(json::Document& document_in,
-                       renderer::RenderSettings& render_settings,
-                       TransportCatalogue& tc,
-                       std::vector<domain::StatRequest>& stat_requests);
-
 namespace reader {
 
 Stop FillInTheStop(json::Node& node);
@@ -25,17 +20,28 @@ void FillInTheDistances (json::Node& node, TransportCatalogue& tc);
 Bus FillInTheBus(json::Node& node, TransportCatalogue& tc);
 void FillInTheData(const json::Node& node, TransportCatalogue& tc);
 
+svg::Color ParsingCollor(const json::Node& node);
+
 void FillInTheRenderSettings(const json::Node& node, renderer::RenderSettings& render_settings);
 
 } //end namespace reader
 
 namespace request {
 
-void ParsingRequest(const json::Node& node, std::vector<domain::StatRequest>& stat_requests);
+struct StatRequest {
+    int id;
+    std::string name;
+    std::string type;
+};
+
+void ParsingRequest(const json::Node& node, std::vector<StatRequest>& stat_requests);
 
 } //end namespace request
 
-
+void SplittingDocument(json::Document& document_in,
+                       renderer::RenderSettings& render_settings,
+                       TransportCatalogue& tc,
+                       std::vector<request::StatRequest>& stat_requests);
 
 } //end namespace handling_json
 } //end namespace transport_catalogue

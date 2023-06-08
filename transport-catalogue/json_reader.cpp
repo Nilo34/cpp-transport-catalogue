@@ -17,25 +17,6 @@
 namespace transport_catalogue {
 namespace handling_json {
 
-void SplittingDocument(json::Document& document_in,
-                       renderer::RenderSettings& render_settings,
-                       TransportCatalogue& tc,
-                       std::vector<domain::StatRequest>& stat_requests) {
-    json::Node node = document_in.GetRoot();
-    
-    if (node.IsMap()) {
-        
-        json::Dict dict = node.AsMap();
-        
-        reader::FillInTheData(dict.at("base_requests"), tc);
-        reader::FillInTheRenderSettings(dict.at("render_settings"), render_settings);
-        
-        request::ParsingRequest(dict.at("stat_requests"), stat_requests);
-        
-    }
-    
-}
-
 namespace reader {
 
 Stop FillInTheStop(json::Node& node) {
@@ -132,6 +113,28 @@ void FillInTheData(const json::Node& node, TransportCatalogue& tc) {
     
 }
 
+svg::Color ParsingCollor(const json::Node& node) {
+    svg::Color result;
+    
+    if (node.IsString()) {
+        result = svg::Color(node.AsString());
+    } else if (node.IsArray()) {
+        json::Array array_color = node.AsArray();
+        int red_ = array_color[0].AsInt();
+        int green_ = array_color[1].AsInt();
+        int blue_ = array_color[2].AsInt();
+        
+        if(array_color.size() == 4){
+            double copacity_ = array_color[3].AsDouble();
+            result = svg::Color(svg::Rgba(red_, green_, blue_, copacity_));
+        } else if (array_color.size() == 3) {
+            result = svg::Color(svg::Rgb(red_, green_, blue_));
+        }
+    }
+    
+    return result;
+}
+
 void FillInTheRenderSettings(const json::Node& node, renderer::RenderSettings& render_settings) {
     if (node.IsMap()) {
         json::Dict render_settings_map = node.AsMap();
@@ -156,22 +159,7 @@ void FillInTheRenderSettings(const json::Node& node, renderer::RenderSettings& r
             render_settings.stop_label_offset_ = std::make_pair(stop_label_offset[0].AsDouble(), stop_label_offset[1].AsDouble());
         }
         
-        if (render_settings_map.at("underlayer_color").IsString()) {
-            render_settings.underlayer_color_ = svg::Color(render_settings_map.at("underlayer_color").AsString());
-        } else if (render_settings_map.at("underlayer_color").IsArray()) {
-            json::Array array_color = render_settings_map.at("underlayer_color").AsArray();
-            int red_ = array_color[0].AsInt();
-            int green_ = array_color[1].AsInt();
-            int blue_ = array_color[2].AsInt();
-            
-            if(array_color.size() == 4){
-                double copacity_ = array_color[3].AsDouble();
-                render_settings.underlayer_color_ = svg::Color(svg::Rgba(red_, green_, blue_, copacity_));
-            } else if (array_color.size() == 3) {
-                render_settings.underlayer_color_ = svg::Color(svg::Rgb(red_, green_, blue_));
-            }
-            
-        }
+        render_settings.underlayer_color_ = ParsingCollor(render_settings_map.at("underlayer_color"));
         
         render_settings.underlayer_width_ = render_settings_map.at("underlayer_width").AsDouble();
         
@@ -179,22 +167,7 @@ void FillInTheRenderSettings(const json::Node& node, renderer::RenderSettings& r
             json::Array array_palette = render_settings_map.at("color_palette").AsArray();
             
             for (json::Node color_palette : array_palette) {
-                
-                if (color_palette.IsString()) {
-                    render_settings.color_palette_.push_back(svg::Color(color_palette.AsString()));
-                } else if (color_palette.IsArray()) {
-                    json::Array array_color = color_palette.AsArray();
-                    int red_ = array_color[0].AsInt();
-                    int green_ = array_color[1].AsInt();
-                    int blue_ = array_color[2].AsInt();
-                    
-                    if (array_color.size() == 4) {
-                        double copacity_ = array_color[3].AsDouble();
-                        render_settings.color_palette_.push_back(svg::Color(svg::Rgba(red_, green_, blue_, copacity_)));
-                    } else if (array_color.size() == 3) {
-                        render_settings.color_palette_.push_back(svg::Color(svg::Rgb(red_, green_, blue_)));
-                    }
-                }
+                render_settings.color_palette_.push_back(ParsingCollor(color_palette));
             }
         }
         
@@ -206,13 +179,13 @@ void FillInTheRenderSettings(const json::Node& node, renderer::RenderSettings& r
 
 namespace request {
 
-void ParsingRequest(const json::Node& node, std::vector<domain::StatRequest>& stat_requests) {
+void ParsingRequest(const json::Node& node, std::vector<StatRequest>& stat_requests) {
     json::Array requests;
     
     if (node.IsArray()) {
         requests = node.AsArray();
         json::Dict buffer_dict;
-        domain::StatRequest buffer_request; //промежуточное хранилище данных о запросе
+        StatRequest buffer_request; //промежуточное хранилище данных о запросе
         
         for (const json::Node& request : requests) {
             buffer_dict = request.AsMap();
@@ -229,6 +202,25 @@ void ParsingRequest(const json::Node& node, std::vector<domain::StatRequest>& st
 }
 
 } //end namespace request
+
+void SplittingDocument(json::Document& document_in,
+                       renderer::RenderSettings& render_settings,
+                       TransportCatalogue& tc,
+                       std::vector<handling_json::request::StatRequest>& stat_requests) {
+    json::Node node = document_in.GetRoot();
+    
+    if (node.IsMap()) {
+        
+        json::Dict dict = node.AsMap();
+        
+        reader::FillInTheData(dict.at("base_requests"), tc);
+        reader::FillInTheRenderSettings(dict.at("render_settings"), render_settings);
+        
+        request::ParsingRequest(dict.at("stat_requests"), stat_requests);
+        
+    }
+    
+}
 
 } //end namespace handling_json
 } //end namespace transport_catalogue

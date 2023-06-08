@@ -5,6 +5,8 @@
  */
 
 #include "geo.h"
+#include "domain.h"
+
 
 #include <string>
 #include <vector>
@@ -16,20 +18,6 @@
 #include <functional>
 
 namespace transport_catalogue {
-
-struct Bus;
-
-struct Stop {
-    std::string name;
-    geo::Coordinates coord;
-    std::vector<Bus*> buses;
-};
-
-struct Bus {
-    std::string name;
-    std::vector<Stop*> stops;
-    bool is_roundtrip;
-};
 
 namespace detail {
 

@@ -8,6 +8,9 @@
 
 #include "geo.h"
 #include "svg.h"
+#include "domain.h"
+#include "transport_catalogue.h"
+
 
 #include <algorithm>
 #include <cstdlib>
@@ -72,6 +75,24 @@ public:
     
     int GetColorPaletteSize() const;
     SphereProjector GetSphereProjector(const std::vector<geo::Coordinates>& Items) const;
+    
+    std::vector<geo::Coordinates> GetStopsCoordinates(TransportCatalogue& db) const;
+    
+    void RenderMapLine(std::vector<std::pair<Bus*, int>>& buses_palette, 
+                       svg::Document& document, 
+                       SphereProjector& sphere_projector) const;
+    void RenderMapRoutesName(std::vector<std::pair<Bus*, int>>& buses_palette, 
+                             svg::Document& document, 
+                             SphereProjector& sphere_projector) const;
+    
+    void RenderMapStops(svg::Document& document, 
+                        SphereProjector& sphere_projector, 
+                        TransportCatalogue& db) const;
+    void RenderMapStopsName(svg::Document& document, 
+                            SphereProjector& sphere_projector, 
+                            TransportCatalogue& db) const;
+    
+    void RenderMap(std::ostream& out, TransportCatalogue& db) const;
     
 private:
     RenderSettings render_settings_;

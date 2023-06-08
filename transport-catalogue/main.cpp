@@ -25,7 +25,7 @@ int main() {
     
     input_data = json::Load(std::cin);
     
-    std::vector<domain::StatRequest> stat_requests;
+    std::vector<transport_catalogue::handling_json::request::StatRequest> stat_requests;
     
     transport_catalogue::handling_json::SplittingDocument(input_data,
                                                           render_settings,
@@ -33,8 +33,7 @@ int main() {
                                                           stat_requests);
     
     transport_catalogue::renderer::MapRenderer map_renderer(render_settings);
-    request_handler::RequestHandler request_handler(TCatalogue, map_renderer);
-    //request_handler.RenderMap(std::cout);
+    transport_catalogue::request_handler::RequestHandler request_handler(TCatalogue, map_renderer);
     
     result_data = request_handler.ReplyToTheRequest(stat_requests);
     

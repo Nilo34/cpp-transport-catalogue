@@ -6,8 +6,6 @@
 
 #include <cassert>
 
-using namespace std;
-
 namespace json {
 
 // -------------- Node ---------------------
@@ -16,97 +14,78 @@ Node::Node(std::nullptr_t)
     : Node()
 {
 }
-Node::Node(int value)
-    : as_value_(value)
-{
-}
-Node::Node(double value)
-    : as_value_(value)
-{
-}
-Node::Node(string value)
-    : as_value_(move(value))
-{
-}
-Node::Node(bool value)
-    : as_value_(value)
-{
-}
-Node::Node(Array array)
-    : as_value_(move(array))
-{
-}
-Node::Node(Dict map)
-    : as_value_(move(map))
-{
-}
 
 
 bool Node::IsInt() const {
-    return holds_alternative<int>(as_value_);
+    return std::holds_alternative<int>(as_value_);
 }
 bool Node::IsPureDouble() const { //Возвращает true, если в Node хранится double.
-    return holds_alternative<double>(as_value_);
+    return std::holds_alternative<double>(as_value_);
 }
 bool Node::IsDouble() const { //Возвращает true, если в Node хранится int либо double.
     return (IsInt() || IsPureDouble());
 }
 bool Node::IsBool() const {
-    return holds_alternative<bool>(as_value_);
+    return std::holds_alternative<bool>(as_value_);
 }
 bool Node::IsString() const {
-    return holds_alternative<string>(as_value_);
+    return std::holds_alternative<std::string>(as_value_);
 }
 bool Node::IsNull() const {
-    return holds_alternative<nullptr_t>(as_value_);
+    return std::holds_alternative<std::nullptr_t>(as_value_);
 }
 bool Node::IsArray() const {
-    return holds_alternative<Array>(as_value_);
+    return std::holds_alternative<Array>(as_value_);
 }
 bool Node::IsMap() const {
-    return holds_alternative<Dict>(as_value_);
+    return std::holds_alternative<Dict>(as_value_);
 }
 
 
 int Node::AsInt() const {
     if (IsInt()) {
-        return get<int>(as_value_);
+        return std::get<int>(as_value_);
     }
-    throw logic_error("is not int"s);
+    using namespace std::literals;
+    throw std::logic_error("is not int"s);
 }
 bool Node::AsBool() const {
     if (IsBool()) {
-        return get<bool>(as_value_);
+        return std::get<bool>(as_value_);
     }
-    throw logic_error("is not bool"s);
+    using namespace std::literals;
+    throw std::logic_error("is not bool"s);
 }
 double Node::AsDouble() const {
     if (IsDouble()) {
         if (IsPureDouble()) {
-            return get<double>(as_value_);
+            return std::get<double>(as_value_);
         }
-        return get<int>(as_value_);
+        return std::get<int>(as_value_);
     }
-    throw logic_error("is not double"s);
+    using namespace std::literals;
+    throw std::logic_error("is not double"s);
 }
-const string& Node::AsString() const {
+const std::string& Node::AsString() const {
     if (IsString()) {
-        //std::cout << get<string>(as_value_) << std::endl;
-        return get<string>(as_value_);
+        return std::get<std::string>(as_value_);
     }
-    throw logic_error("is not string"s);
+    using namespace std::literals;
+    throw std::logic_error("is not string"s);
 }
 const Array& Node::AsArray() const {
     if (IsArray()) {
-        return get<Array>(as_value_);
+        return std::get<Array>(as_value_);
     }
-    throw logic_error("is not array"s);
+    using namespace std::literals;
+    throw std::logic_error("is not array"s);
 }
 const Dict& Node::AsMap() const {
     if (IsMap()) {
-        return get<Dict>(as_value_);
+        return std::get<Dict>(as_value_);
     }
-    throw logic_error("is not map"s);
+    using namespace std::literals;
+    throw std::logic_error("is not map"s);
 }
 
 const Node::Value& Node::GetValue() const {
@@ -196,6 +175,8 @@ Number LoadNumber(std::istream& input) {
 }
 
 bool Loadbool(std::istream& input) {
+    using namespace std::literals;
+    
     std::string str;
     
     while (std::isalpha(input.peek())) {
@@ -272,6 +253,7 @@ std::string LoadString(std::istream& input) {
 }
 
 std::nullptr_t LoadNull(std::istream& input) {
+    using namespace std::literals;
     std::string str;
     
     while (std::isalpha(input.peek())) {
@@ -296,6 +278,7 @@ Node LoadArray(std::istream& input) {
     }
     
     if (!input) {
+        using namespace std::literals;
         throw ParsingError("Incorrect array input"s);
     }
     
@@ -311,12 +294,13 @@ Node LoadDict(std::istream& input) {
             input >> c;
         }
 
-        string key = LoadString(input);
+        std::string key = LoadString(input);
         input >> c;
         result.insert({move(key), LoadNode(input)});
     }
     
     if (!input) {
+        using namespace std::literals;
         throw ParsingError("Incorrect array input"s);
     }
 
@@ -324,6 +308,8 @@ Node LoadDict(std::istream& input) {
 }
 
 Node LoadNode(std::istream& input) {
+    using namespace std::literals;
+    
     char c;
     if (!(input >> c)) {
         throw ParsingError("Incorrect input"s);
@@ -344,10 +330,10 @@ Node LoadNode(std::istream& input) {
     } else {
         input.putback(c);
         auto result = LoadNumber(input);
-        if (holds_alternative<double>(result)) {
-            return get<double>(result);
+        if (std::holds_alternative<double>(result)) {
+            return std::get<double>(result);
         }
-        return get<int>(result);
+        return std::get<int>(result);
     }
 }
 
@@ -356,7 +342,7 @@ Node LoadNode(std::istream& input) {
 // -------------- Document ---------------------
 
 Document::Document(Node root)
-    : root_(move(root)) {
+    : root_(std::move(root)) {
 }
 
 const Node& Document::GetRoot() const {
@@ -391,43 +377,36 @@ void PrintString(const std::string& value, std::ostream& out) {
     using namespace std::literals;
     
     out << "\""sv;
-    //std::cout << "\""sv;
     
     for (const char ch : value) {
         switch (ch) {
             case '\n':
                 out << R"(\n)"sv;
-                //std::cout << R"(\n)"sv;
                 break;
             case '\t':
                 out << "\t"sv;
-                //std::cout << "\t"sv;
                 break;
             case '\r':
                 out << R"(\r)"sv;
-                //std::cout << R"(\r)"sv;
                 break;
             case '\"':
                 out << R"(\")"sv;
-                //std::cout << R"(\")"sv;
                 break;
             case '\\':
                 out << R"(\\)"sv;
-                //std::cout << R"(\\)"sv;
                 break;
             default:
                 out << ch;
-                //std::cout << ch;
                 break;
         }
     }
     
     out << "\""sv;
-    //std::cout << "\""sv << std::endl;
 }
 
 // Перегрузка функции PrintValue для вывода значений null
 void PrintValue(std::nullptr_t, const PrintContext& ctx) {
+    using namespace std::literals;
     ctx.out << "null"sv;
 }
 
@@ -443,6 +422,8 @@ void PrintValue(const bool value, const PrintContext& ctx) {
 
 // Перегрузка функции PrintValue для вывода значений Array
 void PrintValue(const Array& values, const PrintContext& ctx) {
+    using namespace std::literals;
+    
     ctx.out << "["sv << std::endl;
     
     bool need_a_comma = false;
@@ -466,6 +447,8 @@ void PrintValue(const Array& values, const PrintContext& ctx) {
 
 // Перегрузка функции PrintValue для вывода значений Dict
 void PrintValue(const Dict& values, const PrintContext& ctx) {
+    using namespace std::literals;
+    
     ctx.out << "{"sv << std::endl;
     
     bool need_a_comma = false;

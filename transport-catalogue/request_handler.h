@@ -25,6 +25,7 @@
 #include <iostream>
 #include <vector>
 
+namespace transport_catalogue {
 namespace request_handler {
 
 class RequestHandler {
@@ -33,41 +34,20 @@ public:
     RequestHandler(transport_catalogue::TransportCatalogue& db, 
                    const transport_catalogue::renderer::MapRenderer& renderer);
     
-    // Возвращает информацию о маршруте (запрос Bus)
-    //std::optional<BusStat> GetBusStat(const std::string_view& bus_name) const;
+    json::Node OutputTheBusData(handling_json::request::StatRequest& stat_request);
+    json::Node OutputTheStopData(handling_json::request::StatRequest& stat_request);
+    json::Node OutputTheSVGMapData(handling_json::request::StatRequest& stat_request);
     
-    // Возвращает маршруты, проходящие через
-    //const std::unordered_set<BusPtr>* GetBusesByStop(const std::string_view& stop_name) const;
-    
-    std::vector<geo::Coordinates> GetStopsCoordinates() const;
-    
-    void RenderMapLine(std::vector<std::pair<transport_catalogue::Bus*, int>>& buses_palette, 
-                       svg::Document& document, 
-                       transport_catalogue::renderer::SphereProjector& sphere_projector) const;
-    void RenderMapRoutesName(std::vector<std::pair<transport_catalogue::Bus*, int>>& buses_palette, 
-                             svg::Document& document, 
-                             transport_catalogue::renderer::SphereProjector& sphere_projector) const;
-    
-    void RenderMapStops(svg::Document& document, 
-                        transport_catalogue::renderer::SphereProjector& sphere_projector) const;
-    void RenderMapStopsName(svg::Document& document, 
-                            transport_catalogue::renderer::SphereProjector& sphere_projector) const;
-    
-    void RenderMap(std::ostream& out) const;
-    
-    json::Node OutputTheBusData(domain::StatRequest& stat_request);
-    json::Node OutputTheStopData(domain::StatRequest& stat_request);
-    json::Node OutputTheSVGMapData(domain::StatRequest& stat_request);
-    
-    json::Document ReplyToTheRequest(std::vector<domain::StatRequest>& stat_requests);
+    json::Document ReplyToTheRequest(std::vector<handling_json::request::StatRequest>& stat_requests);
     
 private:
     // RequestHandler использует агрегацию объектов "Транспортный Справочник" и "Визуализатор Карты"
-    transport_catalogue::TransportCatalogue& db_;
-    const transport_catalogue::renderer::MapRenderer& renderer_;
+    TransportCatalogue& db_;
+    const renderer::MapRenderer& renderer_;
 };
 
 
 
 
 } //end namespace request_handler
+} //end namespace transport_catalogue
