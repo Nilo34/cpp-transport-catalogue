@@ -21,7 +21,7 @@ namespace reader {
 
 Stop FillInTheStop(json::Node& node) {
     Stop result;
-    json::Dict dict = node.AsMap();
+    json::Dict dict = node.AsDict();
     
     result.name = dict.at("name").AsString();
     
@@ -33,9 +33,9 @@ Stop FillInTheStop(json::Node& node) {
 
 void FillInTheDistances (json::Node& node, TransportCatalogue& tc) {
     
-    json::Dict dict = node.AsMap();
+    json::Dict dict = node.AsDict();
     
-    json::Dict dict_distance_to_stops = dict.at("road_distances").AsMap();
+    json::Dict dict_distance_to_stops = dict.at("road_distances").AsDict();
     
     if (!dict_distance_to_stops.empty()) {
         std::string_view name_stop1 = dict.at("name").AsString();
@@ -52,7 +52,7 @@ void FillInTheDistances (json::Node& node, TransportCatalogue& tc) {
 
 Bus FillInTheBus(json::Node& node, TransportCatalogue& tc) {
     Bus result;
-    json::Dict dict = node.AsMap();
+    json::Dict dict = node.AsDict();
     
     result.name = dict.at("name").AsString();
     result.is_roundtrip = dict.at("is_roundtrip").AsBool();
@@ -86,8 +86,8 @@ void FillInTheData(const json::Node& node, TransportCatalogue& tc) {
         json::Node buffer_request_type; //Содержит тип входных данных: остановка или автобус
         
         for (json::Node& base_request_node : base_requests) {
-            if (base_request_node.IsMap()) {
-                dict = base_request_node.AsMap();
+            if (base_request_node.IsDict()) {
+                dict = base_request_node.AsDict();
                 buffer_request_type = dict.at("type");
                 
                 if (buffer_request_type.AsString() == "Bus") {
@@ -136,8 +136,8 @@ svg::Color ParsingCollor(const json::Node& node) {
 }
 
 void FillInTheRenderSettings(const json::Node& node, renderer::RenderSettings& render_settings) {
-    if (node.IsMap()) {
-        json::Dict render_settings_map = node.AsMap();
+    if (node.IsDict()) {
+        json::Dict render_settings_map = node.AsDict();
         
         render_settings.width_ = render_settings_map.at("width").AsDouble();
         render_settings.height_ = render_settings_map.at("height").AsDouble();
@@ -188,7 +188,7 @@ void ParsingRequest(const json::Node& node, std::vector<StatRequest>& stat_reque
         StatRequest buffer_request; //промежуточное хранилище данных о запросе
         
         for (const json::Node& request : requests) {
-            buffer_dict = request.AsMap();
+            buffer_dict = request.AsDict();
             buffer_request.id = buffer_dict.at("id").AsInt();
             buffer_request.type = buffer_dict.at("type").AsString();
             
@@ -209,9 +209,9 @@ void SplittingDocument(json::Document& document_in,
                        std::vector<handling_json::request::StatRequest>& stat_requests) {
     json::Node node = document_in.GetRoot();
     
-    if (node.IsMap()) {
+    if (node.IsDict()) {
         
-        json::Dict dict = node.AsMap();
+        json::Dict dict = node.AsDict();
         
         reader::FillInTheData(dict.at("base_requests"), tc);
         reader::FillInTheRenderSettings(dict.at("render_settings"), render_settings);

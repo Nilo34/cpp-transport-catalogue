@@ -8,6 +8,8 @@
  * можете оставить его пустым.
  */
 
+#include "json_builder.h"
+
 namespace transport_catalogue {
 namespace request_handler {
 
@@ -20,29 +22,37 @@ RequestHandler::RequestHandler(transport_catalogue::TransportCatalogue& db,
 
 
 json::Node RequestHandler::OutputTheBusData(handling_json::request::StatRequest& stat_request) {
-    json::Dict dict;
+    json::Node node;
     
     transport_catalogue::Bus* bus = db_.GetBus(stat_request.name);
     
     using namespace std::string_literals;
     if (bus != nullptr) {
-        dict.emplace("curvature", json::Node{db_.GetDistanceTravelledBus(bus)/
-                                             db_.GetDistanceBetweenVisitedStopsOnTheGround(bus)});
-        dict.emplace("request_id", json::Node{stat_request.id});
-        dict.emplace("route_length", json::Node{db_.GetDistanceTravelledBus(bus)});
-        dict.emplace("stop_count", json::Node{int(bus->stops.size())});
-        dict.emplace("unique_stop_count", json::Node{db_.GetNumberOfUniqueStops(bus)});
+        node = json::Builder{}.
+               StartDict().
+               Key("curvature").Value(db_.GetDistanceTravelledBus(bus)/
+                                      db_.GetDistanceBetweenVisitedStopsOnTheGround(bus)).
+               Key("request_id").Value(stat_request.id).
+               Key("route_length").Value(db_.GetDistanceTravelledBus(bus)).
+               Key("stop_count").Value(int(bus->stops.size())).
+               Key("unique_stop_count").Value(db_.GetNumberOfUniqueStops(bus)).
+               EndDict().
+               Build();
     } else {
-        dict.emplace("request_id", json::Node{stat_request.id});
         std::string not_found_str = "not found";
-        dict.emplace("error_message", json::Node{not_found_str});
+        node = json::Builder{}.
+               StartDict().
+               Key("request_id").Value(stat_request.id).
+               Key("error_message").Value(not_found_str).
+               EndDict().
+               Build();
     }
     
-    return json::Node{dict};
+    return node;
 }
 
 json::Node RequestHandler::OutputTheStopData(handling_json::request::StatRequest& stat_request) {
-    json::Dict dict;
+    json::Node node;
     
     const transport_catalogue::Stop* stop = db_.GetStop(stat_request.name);
     
@@ -60,20 +70,28 @@ json::Node RequestHandler::OutputTheStopData(handling_json::request::StatRequest
             buffer.push_back(json::Node{bus->name});
         }
         
-        dict.emplace("buses", json::Node{buffer});
-        dict.emplace("request_id", json::Node{stat_request.id});
+        node = json::Builder{}.
+               StartDict().
+               Key("buses").Value(buffer).
+               Key("request_id").Value(stat_request.id).
+               EndDict().
+               Build();
         
     } else {
-        dict.emplace("request_id", json::Node{stat_request.id});
         std::string not_found_str = "not found";
-        dict.emplace("error_message", json::Node{not_found_str});
+        node = json::Builder{}.
+               StartDict().
+               Key("request_id").Value(stat_request.id).
+               Key("error_message").Value(not_found_str).
+               EndDict().
+               Build();
     }
     
-    return json::Node{dict};
+    return node;
 }
 
 json::Node RequestHandler::OutputTheSVGMapData(handling_json::request::StatRequest& stat_request) {
-    json::Dict result;
+    json::Node node;
     
     std::ostringstream svg_stream;
     std::string svg_string;
@@ -82,10 +100,14 @@ json::Node RequestHandler::OutputTheSVGMapData(handling_json::request::StatReque
     
     svg_string = svg_stream.str();
     
-    result.emplace("map", json::Node(svg_string));
-    result.emplace("request_id", json::Node(stat_request.id));
+    node = json::Builder{}.
+               StartDict().
+               Key("map").Value(svg_string).
+               Key("request_id").Value(stat_request.id).
+               EndDict().
+               Build();
     
-    return json::Node(result);
+    return node;
 }
 
 json::Document RequestHandler::ReplyToTheRequest(

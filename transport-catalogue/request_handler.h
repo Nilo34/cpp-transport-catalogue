@@ -19,7 +19,6 @@
 #include "map_renderer.h"
 #include "json.h"
 #include "domain.h"
-
 #include "json_reader.h"
 
 #include <iostream>
