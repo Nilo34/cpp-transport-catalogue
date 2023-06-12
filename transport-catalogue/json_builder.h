@@ -7,15 +7,13 @@
 
 namespace json {
 
-class BaseContext;
-class DictValueContext;
-class DictItemContext;
-class ArrayItemContext;
-
 class Builder {
 public:
     
-    void AddNode(Node node);
+    class BaseContext;
+    class DictValueContext;
+    class DictItemContext;
+    class ArrayItemContext;
     
     DictValueContext Key(std::string key);
     BaseContext Value(Node::Value value);
@@ -29,9 +27,11 @@ public:
 private:
     Node root_;
     std::vector<std::unique_ptr<Node>> nodes_stack_;
+    
+    void AddNode(Node node);
 };
 
-class BaseContext {
+class Builder::BaseContext {
 public:
     
     BaseContext(Builder& builder);
@@ -50,7 +50,7 @@ protected:
     Builder& builder_;
 };
 
-class DictValueContext : public BaseContext {
+class Builder::DictValueContext : public BaseContext {
 public:
     DictValueContext(Builder& builder);
     
@@ -61,7 +61,7 @@ public:
     
     Node Build() = delete;
 };
-class DictItemContext : public BaseContext {
+class Builder::DictItemContext : public BaseContext {
 public:
     DictItemContext(Builder& builder);
     
@@ -72,7 +72,7 @@ public:
     
     Node Build() = delete;
 };
-class ArrayItemContext : public BaseContext {
+class Builder::ArrayItemContext : public BaseContext {
 public:
     ArrayItemContext(Builder& builder);
     

@@ -80,6 +80,14 @@ public:
 
         return std::get<Array>(*this);
     }
+    Array& AsArray() {
+        using namespace std::literals;
+        if (!IsArray()) {
+            throw std::logic_error("Not an array"s);
+        }
+
+        return std::get<Array>(*this);
+    }
 
     bool IsString() const {
         return std::holds_alternative<std::string>(*this);
@@ -97,6 +105,14 @@ public:
         return std::holds_alternative<Dict>(*this);
     }
     const Dict& AsDict() const {
+        using namespace std::literals;
+        if (!IsDict()) {
+            throw std::logic_error("Not a dict"s);
+        }
+
+        return std::get<Dict>(*this);
+    }
+    Dict& AsDict() {
         using namespace std::literals;
         if (!IsDict()) {
             throw std::logic_error("Not a dict"s);

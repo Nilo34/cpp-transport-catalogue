@@ -6,49 +6,7 @@
 
 namespace json {
 
-void Builder::AddNode(Node node) {
-    
-    if (nodes_stack_.empty()) {
-        
-        if (!root_.IsNull()) {
-            throw std::logic_error("the object has already been created");
-        }
-        
-        root_ = std::move(node);
-        return ;
-        
-    } else if (nodes_stack_.back()->IsString()) {
-        std::string str = nodes_stack_.back()->AsString();
-        nodes_stack_.pop_back();
-        
-        if (nodes_stack_.back()->IsDict()) {
-            Dict dict = nodes_stack_.back()->AsDict();
-            dict.emplace(std::move(str), node);
-            nodes_stack_.pop_back();
-            
-            auto dict_ptr = std::make_unique<Node>(dict);
-            nodes_stack_.emplace_back(std::move(dict_ptr));
-        }
-        
-        return ;
-        
-    } else if (nodes_stack_.back()->IsArray()) {
-        Array arr = nodes_stack_.back()->AsArray();
-        arr.emplace_back(node);
-        nodes_stack_.pop_back();
-        
-        auto array_ptr = std::make_unique<Node>(arr);
-        nodes_stack_.emplace_back(std::move(array_ptr));
-        
-        return ;
-        
-    } else if ((!nodes_stack_.back()->IsString()) && (!nodes_stack_.back()->IsArray())) {
-        throw std::logic_error("it is not possible to create an object");
-    }
-    
-}
-
-DictValueContext Builder::Key(std::string key) {
+Builder::DictValueContext Builder::Key(std::string key) {
     
     if (nodes_stack_.empty()) {
         throw std::logic_error("it is not possible to create a key");
@@ -63,22 +21,22 @@ DictValueContext Builder::Key(std::string key) {
     return DictValueContext(*this);
 }
 
-BaseContext Builder::Value(Node::Value value) {
+Builder::BaseContext Builder::Value(Node::Value value) {
     AddNode(Node(value));
     return BaseContext(*this);
 }
 
-DictItemContext Builder::StartDict() {
+Builder::DictItemContext Builder::StartDict() {
     nodes_stack_.emplace_back(std::move(std::make_unique<Node>(Dict())));
     return DictItemContext(*this);
 }
 
-ArrayItemContext Builder::StartArray() {
+Builder::ArrayItemContext Builder::StartArray() {
     nodes_stack_.emplace_back(std::move(std::make_unique<Node>(Array())));
     return ArrayItemContext(*this);
 }
 
-BaseContext Builder::EndDict() {
+Builder::BaseContext Builder::EndDict() {
     
     if (nodes_stack_.empty()) {
         throw std::logic_error("the object has not been opened");
@@ -91,12 +49,12 @@ BaseContext Builder::EndDict() {
     }
     
     nodes_stack_.pop_back();
-    AddNode(node);
+    AddNode(std::move(node));
     
     return BaseContext(*this);
 }
 
-BaseContext Builder::EndArray() {
+Builder::BaseContext Builder::EndArray() {
     
     if (nodes_stack_.empty()) {
         throw std::logic_error("the object has not been opened");
@@ -109,7 +67,7 @@ BaseContext Builder::EndArray() {
     }
     
     nodes_stack_.pop_back();
-    AddNode(node);
+    AddNode(std::move(node));
     
     return BaseContext(*this);
 }
@@ -127,62 +85,92 @@ Node Builder::Build() {
     return root_;
 }
 
+void Builder::AddNode(Node node) {
+    
+    if (nodes_stack_.empty()) {
+        
+        if (!root_.IsNull()) {
+            throw std::logic_error("the object has already been created");
+        }
+        
+        root_ = std::move(node);
+        return ;
+        
+    } else if (nodes_stack_.back()->IsString()) {
+        std::string str = nodes_stack_.back()->AsString();
+        nodes_stack_.pop_back();
+        
+        if (nodes_stack_.back()->IsDict()) {
+            Dict& dict = nodes_stack_.back()->AsDict();
+            dict.emplace(std::move(str), std::move(node));
+        }
+        
+        return ;
+        
+    } else if (nodes_stack_.back()->IsArray()) {
+        Array& arr = nodes_stack_.back()->AsArray();
+        arr.emplace_back(std::move(node));
+        
+        return ;
+        
+    } else if ((!nodes_stack_.back()->IsString()) && (!nodes_stack_.back()->IsArray())) {
+        throw std::logic_error("it is not possible to create an object");
+    }
+    
+}
 
-BaseContext::BaseContext(Builder& builder)
+
+Builder::BaseContext::BaseContext(Builder& builder)
 : builder_(builder)
 {    
 }
-DictValueContext BaseContext::Key(std::string key) {
-    return builder_.Key(key);
+Builder::DictValueContext Builder::BaseContext::Key(std::string key) {
+    return builder_.Key(std::move(key));
 }
-BaseContext BaseContext::Value(Node::Value value) {
-    return builder_.Value(value);
+Builder::BaseContext Builder::BaseContext::Value(Node::Value value) {
+    return builder_.Value(std::move(value));
 }
-DictItemContext BaseContext::StartDict() {
+Builder::DictItemContext Builder::BaseContext::StartDict() {
     return builder_.StartDict();
 }
-ArrayItemContext BaseContext::StartArray() {
+Builder::ArrayItemContext Builder::BaseContext::StartArray() {
     return builder_.StartArray();
 }
-BaseContext BaseContext::EndDict() {
+Builder::BaseContext Builder::BaseContext::EndDict() {
     return builder_.EndDict();
 }
-BaseContext BaseContext::EndArray() {
+Builder::BaseContext Builder::BaseContext::EndArray() {
     return builder_.EndArray();
 }
 
-Node BaseContext::Build() {
+Node Builder::BaseContext::Build() {
     return builder_.Build();
 }
-Builder& BaseContext::GetBuilder() {
+Builder& Builder::BaseContext::GetBuilder() {
     return builder_;
 }
 
-DictValueContext::DictValueContext(Builder& builder)
+Builder::DictValueContext::DictValueContext(Builder& builder)
 : BaseContext(builder)
 {    
 }
-DictItemContext DictValueContext::Value(Node::Value value) {
-    return BaseContext::Value(value).GetBuilder();
+Builder::DictItemContext Builder::DictValueContext::Value(Node::Value value) {
+    return BaseContext::Value(std::move(value)).GetBuilder();
 }
 
 
-DictItemContext::DictItemContext(Builder& builder)
+Builder::DictItemContext::DictItemContext(Builder& builder)
 : BaseContext(builder)
 {    
 }
 
 
-ArrayItemContext::ArrayItemContext(Builder& builder)
+Builder::ArrayItemContext::ArrayItemContext(Builder& builder)
 : BaseContext(builder)
 {    
 }
-ArrayItemContext ArrayItemContext::Value(Node::Value value) {
-    return BaseContext::Value(value).GetBuilder();;
+Builder::ArrayItemContext Builder::ArrayItemContext::Value(Node::Value value) {
+    return BaseContext::Value(std::move(value)).GetBuilder();
 }
-
-
-
-
 
 } // end namespace json
