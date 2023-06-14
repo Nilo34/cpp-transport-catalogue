@@ -42,7 +42,7 @@ Builder::BaseContext Builder::EndDict() {
         throw std::logic_error("the object has not been opened");
     }
     
-    Node node = *nodes_stack_.back();
+    Node node = std::move(*nodes_stack_.back());
     
     if (!node.IsDict()) {
         throw std::logic_error("the current object is not an dictionary");
@@ -60,7 +60,7 @@ Builder::BaseContext Builder::EndArray() {
         throw std::logic_error("the object has not been opened");
     }
     
-    Node node = *nodes_stack_.back();
+    Node node = std::move(*nodes_stack_.back());
     
     if (!node.IsArray()) {
         throw std::logic_error("the current object is not an array");
