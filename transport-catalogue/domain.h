@@ -13,8 +13,10 @@
  */
 
 #include "geo.h"
+#include "graph.h"
 
 #include <vector>
+#include <variant>
 #include <string>
 
 namespace transport_catalogue {
@@ -32,5 +34,41 @@ struct Bus {
     std::vector<Stop*> stops;
     bool is_roundtrip;
 };
+
+struct StatRequest {
+    int id;
+    std::string name;
+    std::string type;
+    std::string from;
+    std::string to;
+};
+
+struct RoutingSettings {
+    double bus_wait_time = 4;
+    double bus_velocity = 30;
+};
+
+struct StopEdge {
+    std::string_view name;
+    double time = 0;
+};
+
+struct BusEdge {
+    std::string_view name;
+    double time = 0;
+    int number_of_stops = 0;
+};
+
+struct BusWaitingPeriod {
+  graph::VertexId start_bus_wait;
+  graph::VertexId end_bus_wait;
+};
+
+struct RouteData {
+    double time = 0;
+    std::vector<std::variant<StopEdge, BusEdge>> edges;
+};
+
+
 
 } //end namespace transport_catalogue

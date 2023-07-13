@@ -174,6 +174,14 @@ void FillInTheRenderSettings(const json::Node& node, renderer::RenderSettings& r
     }
 }
 
+void FillInTheRoutingSettings(const json::Node& node, RoutingSettings& routing_settings) {
+    if (node.IsDict()) {
+        json::Dict routing_settings_map = node.AsDict();
+        
+        routing_settings.bus_velocity = routing_settings_map.at("bus_velocity").AsDouble();
+        routing_settings.bus_wait_time = routing_settings_map.at("bus_wait_time").AsDouble();
+    }
+}
 
 } //end namespace reader
 
@@ -194,6 +202,16 @@ void ParsingRequest(const json::Node& node, std::vector<StatRequest>& stat_reque
             
             if ((buffer_request.type == "Bus") || (buffer_request.type == "Stop")) {
                 buffer_request.name = buffer_dict.at("name").AsString();
+                buffer_request.from = "";
+                buffer_request.to = "";
+            } else if (buffer_request.type == "Route") {
+                buffer_request.name = "";
+                buffer_request.from = buffer_dict.at("from").AsString();
+                buffer_request.to = buffer_dict.at("to").AsString();
+            } else if (buffer_request.type == "Map") {
+                buffer_request.name = "";
+                buffer_request.from = "";
+                buffer_request.to = "";
             }
             
             stat_requests.push_back(buffer_request);
@@ -205,8 +223,9 @@ void ParsingRequest(const json::Node& node, std::vector<StatRequest>& stat_reque
 
 void SplittingDocument(json::Document& document_in,
                        renderer::RenderSettings& render_settings,
+                       RoutingSettings& routing_settings,
                        TransportCatalogue& tc,
-                       std::vector<handling_json::request::StatRequest>& stat_requests) {
+                       std::vector<StatRequest>& stat_requests) {
     json::Node node = document_in.GetRoot();
     
     if (node.IsDict()) {
@@ -215,6 +234,7 @@ void SplittingDocument(json::Document& document_in,
         
         reader::FillInTheData(dict.at("base_requests"), tc);
         reader::FillInTheRenderSettings(dict.at("render_settings"), render_settings);
+        reader::FillInTheRoutingSettings(dict.at("routing_settings"), routing_settings);
         
         request::ParsingRequest(dict.at("stat_requests"), stat_requests);
         

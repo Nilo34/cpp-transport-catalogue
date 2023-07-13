@@ -23,16 +23,11 @@ void FillInTheData(const json::Node& node, TransportCatalogue& tc);
 svg::Color ParsingCollor(const json::Node& node);
 
 void FillInTheRenderSettings(const json::Node& node, renderer::RenderSettings& render_settings);
+void FillInTheRoutingSettings(const json::Node& node, RoutingSettings& routing_settings);
 
 } //end namespace reader
 
 namespace request {
-
-struct StatRequest {
-    int id;
-    std::string name;
-    std::string type;
-};
 
 void ParsingRequest(const json::Node& node, std::vector<StatRequest>& stat_requests);
 
@@ -40,8 +35,9 @@ void ParsingRequest(const json::Node& node, std::vector<StatRequest>& stat_reque
 
 void SplittingDocument(json::Document& document_in,
                        renderer::RenderSettings& render_settings,
+                       RoutingSettings& routing_settings,
                        TransportCatalogue& tc,
-                       std::vector<request::StatRequest>& stat_requests);
+                       std::vector<StatRequest>& stat_requests);
 
 } //end namespace handling_json
 } //end namespace transport_catalogue

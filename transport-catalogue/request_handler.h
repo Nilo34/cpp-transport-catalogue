@@ -20,6 +20,7 @@
 #include "json.h"
 #include "domain.h"
 #include "json_reader.h"
+#include "transport_router.h"
 
 #include <iostream>
 #include <vector>
@@ -29,20 +30,28 @@ namespace request_handler {
 
 class RequestHandler {
 public:
-    // MapRenderer понадобится в следующей части итогового проекта
+    
     RequestHandler(transport_catalogue::TransportCatalogue& db, 
-                   const transport_catalogue::renderer::MapRenderer& renderer);
+                   const transport_catalogue::renderer::MapRenderer& renderer,
+                   transport_catalogue::router::TransportRouter& router);
     
-    json::Node OutputTheBusData(handling_json::request::StatRequest& stat_request);
-    json::Node OutputTheStopData(handling_json::request::StatRequest& stat_request);
-    json::Node OutputTheSVGMapData(handling_json::request::StatRequest& stat_request);
+    json::Node OutputTheBusData(StatRequest& stat_request);
+    json::Node OutputTheStopData(StatRequest& stat_request);
+    json::Node OutputTheSVGMapData(StatRequest& stat_request);
+    json::Node OutputTheRouteData(StatRequest& stat_request);
     
-    json::Document ReplyToTheRequest(std::vector<handling_json::request::StatRequest>& stat_requests);
+    json::Document ReplyToTheRequest(std::vector<StatRequest>& stat_requests);
     
 private:
     // RequestHandler использует агрегацию объектов "Транспортный Справочник" и "Визуализатор Карты"
     TransportCatalogue& db_;
     const renderer::MapRenderer& renderer_;
+    router::TransportRouter& router_;
+    
+    struct EdgePrinter{
+        json::Node operator()(const StopEdge& stop_edge);
+        json::Node operator()(const BusEdge& bus_edge);
+    };
 };
 
 

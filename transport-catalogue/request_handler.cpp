@@ -10,18 +10,22 @@
 
 #include "json_builder.h"
 
+#include <optional>
+
 namespace transport_catalogue {
 namespace request_handler {
 
 RequestHandler::RequestHandler(transport_catalogue::TransportCatalogue& db, 
-                               const transport_catalogue::renderer::MapRenderer& renderer)
+                               const transport_catalogue::renderer::MapRenderer& renderer,
+                               transport_catalogue::router::TransportRouter& router)
 : db_(db)
 , renderer_(renderer)
+, router_(router)
 {
 }
 
 
-json::Node RequestHandler::OutputTheBusData(handling_json::request::StatRequest& stat_request) {
+json::Node RequestHandler::OutputTheBusData(StatRequest& stat_request) {
     json::Node node;
     
     transport_catalogue::Bus* bus = db_.GetBus(stat_request.name);
@@ -51,7 +55,7 @@ json::Node RequestHandler::OutputTheBusData(handling_json::request::StatRequest&
     return node;
 }
 
-json::Node RequestHandler::OutputTheStopData(handling_json::request::StatRequest& stat_request) {
+json::Node RequestHandler::OutputTheStopData(StatRequest& stat_request) {
     json::Node node;
     
     const transport_catalogue::Stop* stop = db_.GetStop(stat_request.name);
@@ -90,7 +94,7 @@ json::Node RequestHandler::OutputTheStopData(handling_json::request::StatRequest
     return node;
 }
 
-json::Node RequestHandler::OutputTheSVGMapData(handling_json::request::StatRequest& stat_request) {
+json::Node RequestHandler::OutputTheSVGMapData(StatRequest& stat_request) {
     json::Node node;
     
     std::ostringstream svg_stream;
@@ -101,31 +105,96 @@ json::Node RequestHandler::OutputTheSVGMapData(handling_json::request::StatReque
     svg_string = svg_stream.str();
     
     node = json::Builder{}.
+           StartDict().
+           Key("map").Value(svg_string).
+           Key("request_id").Value(stat_request.id).
+           EndDict().
+           Build();
+    
+    return node;
+}
+
+json::Node RequestHandler::OutputTheRouteData(StatRequest& stat_request) {
+    json::Node node;
+    
+    std::optional<RouteData> route_data = router_.GetRouteInformation(router_.GetBusWaitingPeriod(db_.GetStop(stat_request.from)).start_bus_wait,
+                                                                      router_.GetBusWaitingPeriod(db_.GetStop(stat_request.to)).start_bus_wait);
+    
+    if (route_data) {
+        json::Array buffer_array_node;
+        
+        for (const auto& edge : route_data->edges) {
+            buffer_array_node.emplace_back(std::visit(EdgePrinter{}, edge));
+        }
+        
+        node = json::Builder{}.
                StartDict().
-               Key("map").Value(svg_string).
                Key("request_id").Value(stat_request.id).
+               Key("total_time").Value(route_data->time).
+               Key("items").Value(buffer_array_node).
                EndDict().
                Build();
+        
+    } else {
+        std::string not_found_str = "not found";
+        node = json::Builder{}.
+               StartDict().
+               Key("request_id").Value(stat_request.id).
+               Key("error_message").Value(not_found_str).
+               EndDict().
+               Build();
+    }
     
     return node;
 }
 
 json::Document RequestHandler::ReplyToTheRequest(
-               std::vector<handling_json::request::StatRequest>& stat_requests) {
+               std::vector<StatRequest>& stat_requests) {
     
     json::Array result;
     
-    for (handling_json::request::StatRequest& stat_request : stat_requests) {
+    for (StatRequest& stat_request : stat_requests) {
         if (stat_request.type == "Bus") {
             result.push_back(OutputTheBusData(stat_request));
         } else if (stat_request.type == "Stop") {
             result.push_back(OutputTheStopData(stat_request));
         } else if (stat_request.type == "Map") {
             result.push_back(OutputTheSVGMapData(stat_request));
+        } else if (stat_request.type == "Route") {
+            result.push_back(OutputTheRouteData(stat_request));
         }
     }
     
     return json::Document{json::Node{result}};
+}
+
+
+json::Node RequestHandler::EdgePrinter::operator()(const StopEdge& stop_edge) {
+    json::Node node;
+    
+    node = json::Builder{}.
+           StartDict().
+           Key("stop_name").Value(std::string(stop_edge.name)).
+           Key("time").Value(stop_edge.time).
+           Key("type").Value("Wait").
+           EndDict().
+           Build();
+    
+    return node;
+}
+json::Node RequestHandler::EdgePrinter::operator()(const BusEdge& bus_edge) {
+    json::Node node;
+    
+    node = json::Builder{}.
+           StartDict().
+           Key("bus").Value(std::string(bus_edge.name)).
+           Key("span_count").Value(bus_edge.number_of_stops).
+           Key("time").Value(bus_edge.time).
+           Key("type").Value("Bus").
+           EndDict().
+           Build();
+    
+    return node;
 }
 
 } //end namespace request_handler
