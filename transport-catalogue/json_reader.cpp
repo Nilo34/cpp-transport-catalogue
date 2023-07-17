@@ -174,7 +174,7 @@ void FillInTheRenderSettings(const json::Node& node, renderer::RenderSettings& r
     }
 }
 
-void FillInTheRoutingSettings(const json::Node& node, RoutingSettings& routing_settings) {
+void FillInTheRoutingSettings(const json::Node& node, router::RoutingSettings& routing_settings) {
     if (node.IsDict()) {
         json::Dict routing_settings_map = node.AsDict();
         
@@ -223,7 +223,7 @@ void ParsingRequest(const json::Node& node, std::vector<StatRequest>& stat_reque
 
 void SplittingDocument(json::Document& document_in,
                        renderer::RenderSettings& render_settings,
-                       RoutingSettings& routing_settings,
+                       router::RoutingSettings& routing_settings,
                        TransportCatalogue& tc,
                        std::vector<StatRequest>& stat_requests) {
     json::Node node = document_in.GetRoot();

@@ -49,8 +49,8 @@ private:
     router::TransportRouter& router_;
     
     struct EdgePrinter{
-        json::Node operator()(const StopEdge& stop_edge);
-        json::Node operator()(const BusEdge& bus_edge);
+        json::Node operator()(const router::StopEdge& stop_edge);
+        json::Node operator()(const router::BusEdge& bus_edge);
     };
 };
 

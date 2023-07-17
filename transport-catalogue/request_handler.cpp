@@ -117,7 +117,7 @@ json::Node RequestHandler::OutputTheSVGMapData(StatRequest& stat_request) {
 json::Node RequestHandler::OutputTheRouteData(StatRequest& stat_request) {
     json::Node node;
     
-    std::optional<RouteData> route_data = router_.GetRouteInformation(router_.GetBusWaitingPeriod(db_.GetStop(stat_request.from)).start_bus_wait,
+    std::optional<router::RouteData> route_data = router_.GetRouteInformation(router_.GetBusWaitingPeriod(db_.GetStop(stat_request.from)).start_bus_wait,
                                                                       router_.GetBusWaitingPeriod(db_.GetStop(stat_request.to)).start_bus_wait);
     
     if (route_data) {
@@ -169,7 +169,7 @@ json::Document RequestHandler::ReplyToTheRequest(
 }
 
 
-json::Node RequestHandler::EdgePrinter::operator()(const StopEdge& stop_edge) {
+json::Node RequestHandler::EdgePrinter::operator()(const router::StopEdge& stop_edge) {
     json::Node node;
     
     node = json::Builder{}.
@@ -182,7 +182,7 @@ json::Node RequestHandler::EdgePrinter::operator()(const StopEdge& stop_edge) {
     
     return node;
 }
-json::Node RequestHandler::EdgePrinter::operator()(const BusEdge& bus_edge) {
+json::Node RequestHandler::EdgePrinter::operator()(const router::BusEdge& bus_edge) {
     json::Node node;
     
     node = json::Builder{}.

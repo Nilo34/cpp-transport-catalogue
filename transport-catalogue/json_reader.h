@@ -8,7 +8,7 @@
 #include "json.h"
 #include "transport_catalogue.h"
 #include "map_renderer.h"
-#include "domain.h"
+#include "transport_router.h"
 
 namespace transport_catalogue {
 namespace handling_json {
@@ -23,7 +23,7 @@ void FillInTheData(const json::Node& node, TransportCatalogue& tc);
 svg::Color ParsingCollor(const json::Node& node);
 
 void FillInTheRenderSettings(const json::Node& node, renderer::RenderSettings& render_settings);
-void FillInTheRoutingSettings(const json::Node& node, RoutingSettings& routing_settings);
+void FillInTheRoutingSettings(const json::Node& node, router::RoutingSettings& routing_settings);
 
 } //end namespace reader
 
@@ -35,7 +35,7 @@ void ParsingRequest(const json::Node& node, std::vector<StatRequest>& stat_reque
 
 void SplittingDocument(json::Document& document_in,
                        renderer::RenderSettings& render_settings,
-                       RoutingSettings& routing_settings,
+                       router::RoutingSettings& routing_settings,
                        TransportCatalogue& tc,
                        std::vector<StatRequest>& stat_requests);
 

@@ -1,8 +1,5 @@
 #pragma once
 
-/*
- * Здесь можно разместить код транспортного справочника
- */
 
 #include "geo.h"
 #include "domain.h"
@@ -55,8 +52,8 @@ public:
     
     std::unordered_set<Bus*> GetUniqueBusesOfStop(const Stop* stop) const;
     
-    std::unordered_map<std::string_view, Stop*> GetMapToStop() const;
-    std::unordered_map<std::string_view, Bus*> GetMapToBus() const;
+    const std::unordered_map<std::string_view, Stop*>& GetMapToStop() const;
+    const std::unordered_map<std::string_view, Bus*>& GetMapToBus() const;
     
 private:
     std::deque<Stop> stops_;

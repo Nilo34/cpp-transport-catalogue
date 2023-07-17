@@ -11,11 +11,10 @@ TransportRouter::TransportRouter(TransportCatalogue& db, RoutingSettings& routin
     router_ = std::make_unique<graph::Router<double>>(*graph_);
 }
 
-void TransportRouter::SetStops(const std::deque<Stop*> stops) {
+void TransportRouter::SetStops() {
     size_t position = 0;
     
-    for (const auto stop : stops) {
-        
+    for (const auto [_, stop] : db_.GetMapToStop()) {
         map_stop_to_bus_period_[stop] = BusWaitingPeriod{position, position+1};
         
         position += 2;
@@ -24,7 +23,7 @@ void TransportRouter::SetStops(const std::deque<Stop*> stops) {
 
 void TransportRouter::AddEdgeToStop() {
     for (const auto [stop, summit_number] : map_stop_to_bus_period_) {
-        graph::EdgeId edge_id = graph_->AddEdge(graph::Edge<double>{summit_number.start_bus_wait,
+        size_t edge_id = graph_->AddEdge(graph::Edge<double>{summit_number.start_bus_wait,
                                                                     summit_number.end_bus_wait,
                                                                     routing_settings_.bus_wait_time});
         
@@ -32,7 +31,7 @@ void TransportRouter::AddEdgeToStop() {
     }
 }
 void TransportRouter::AddEdgeToBus() {
-    for (auto bus : GetBusesPtr()) {
+    for (const auto [_, bus] : db_.GetMapToBus()) {
         FillBusToEdge(bus->stops.begin(),
                       bus->stops.end(),
                       bus);
@@ -45,12 +44,11 @@ void TransportRouter::AddEdgeToBus() {
 }
 
 void TransportRouter::SetGraph() {
-    std::deque<Stop*> stops_ptr = GetStopsPtr();
-    const size_t stops_ptr_size = stops_ptr.size();
+    const size_t stops_ptr_size = db_.GetMapToStop().size();
     
     graph_ = std::make_unique<graph::DirectedWeightedGraph<double>>(2 * stops_ptr_size);
     
-    SetStops(GetStopsPtr());
+    SetStops();
     
     AddEdgeToStop();
     AddEdgeToBus();
@@ -69,7 +67,7 @@ const graph::Edge<double> TransportRouter::СreateEdgeToBus(Stop* start_stop, St
 }
 
 
-std::optional<RouteData> TransportRouter::GetRouteInformation(graph::VertexId from, graph::VertexId to) {
+std::optional<RouteData> TransportRouter::GetRouteInformation(size_t from, size_t to) {
     const auto& route_info = router_->BuildRoute(from, to);
     
     if (route_info) {
@@ -77,7 +75,7 @@ std::optional<RouteData> TransportRouter::GetRouteInformation(graph::VertexId fr
         
         result.time = route_info->weight;
         
-        for (const graph::EdgeId id : route_info->edges) {
+        for (const size_t id : route_info->edges) {
             result.edges.emplace_back(map_id_to_edge_.at(id));
         }
         
@@ -90,31 +88,6 @@ std::optional<RouteData> TransportRouter::GetRouteInformation(graph::VertexId fr
 BusWaitingPeriod TransportRouter::GetBusWaitingPeriod(Stop* stop) {
     return map_stop_to_bus_period_.at(stop);
 }
-
-
-
-
-
-
-
-
-
-std::deque<Stop*> TransportRouter::GetStopsPtr() {
-    std::deque<Stop*> result;
-    for (auto [_, stop] : db_.GetMapToStop()) {
-        result.push_back(stop);
-    }
-    return result;
-}
-std::deque<Bus*> TransportRouter::GetBusesPtr() {
-    std::deque<Bus*> result;
-    for (auto [_, bus] : db_.GetMapToBus()) {
-        result.push_back(bus);
-    }
-    return result;
-}
-
-
 
 } //end namespace router
 } //end namespace transport_catalogue

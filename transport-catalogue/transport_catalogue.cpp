@@ -1,14 +1,10 @@
 #include "transport_catalogue.h"
 #include "geo.h"
 
-/*
- * Здесь можно разместить код транспортного справочника
- */
 
 #include <utility>
 #include <unordered_set>
 
-//#include <iostream>
 
 namespace transport_catalogue {
 
@@ -37,7 +33,6 @@ Stop* TransportCatalogue::GetStop(std::string_view stop_name) {
     }
     return nullptr;
 }
-
 Bus* TransportCatalogue::GetBus(std::string_view bus_name) {
     if (map_to_buses_.count(bus_name) != 0) {
         return map_to_buses_.at(bus_name);
@@ -88,11 +83,11 @@ std::unordered_set<Bus*> TransportCatalogue::GetUniqueBusesOfStop(const Stop* st
     return buffer;
 }
 
-std::unordered_map<std::string_view, Stop*> TransportCatalogue::GetMapToStop() const {
+const std::unordered_map<std::string_view, Stop*>& TransportCatalogue::GetMapToStop() const {
     return map_to_stops_;
 }
 
-std::unordered_map<std::string_view, Bus*> TransportCatalogue::GetMapToBus() const {
+const std::unordered_map<std::string_view, Bus*>& TransportCatalogue::GetMapToBus() const {
     return map_to_buses_;
 }
 

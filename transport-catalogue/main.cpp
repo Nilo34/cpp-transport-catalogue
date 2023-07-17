@@ -22,7 +22,7 @@ int main() {
     json::Document result_data;
     
     transport_catalogue::renderer::RenderSettings render_settings;
-    transport_catalogue::RoutingSettings routing_setings;
+    transport_catalogue::router::RoutingSettings routing_setings;
     
     input_data = json::Load(std::cin);
     
