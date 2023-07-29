@@ -86,9 +86,18 @@ std::unordered_set<Bus*> TransportCatalogue::GetUniqueBusesOfStop(const Stop* st
 const std::unordered_map<std::string_view, Stop*>& TransportCatalogue::GetMapToStop() const {
     return map_to_stops_;
 }
-
 const std::unordered_map<std::string_view, Bus*>& TransportCatalogue::GetMapToBus() const {
     return map_to_buses_;
+}
+
+const std::deque<Stop>& TransportCatalogue::GetStops() const {
+    return stops_;
+}
+const std::deque<Bus>& TransportCatalogue::GetBuses() const {
+    return buses_;
+}
+const std::unordered_map<std::pair<const Stop*, const Stop*>, double, detail::HasherDistancesBetweenStops>& TransportCatalogue::GetDistancesBetweenStops() const {
+    return distances_between_stops_;
 }
 
 } //end namespace transport_catalogue

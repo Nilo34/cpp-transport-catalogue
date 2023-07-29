@@ -19,6 +19,14 @@ namespace handling_json {
 
 namespace reader {
 
+void FillInTheSerializationSettings(json::Node& node, serialization::SerializationSettings& serialization_settings) {
+    if (node.IsDict()) {
+        json::Dict serialization_settings_map = node.AsDict();
+        
+        serialization_settings.file_name = serialization_settings_map.at("file").AsString();
+    }
+}
+
 Stop FillInTheStop(json::Node& node) {
     Stop result;
     json::Dict dict = node.AsDict();
@@ -221,25 +229,39 @@ void ParsingRequest(const json::Node& node, std::vector<StatRequest>& stat_reque
 
 } //end namespace request
 
-void SplittingDocument(json::Document& document_in,
-                       renderer::RenderSettings& render_settings,
-                       router::RoutingSettings& routing_settings,
-                       TransportCatalogue& tc,
-                       std::vector<StatRequest>& stat_requests) {
+void SplittingDocumentMakeBase(json::Document& document_in,
+                               renderer::RenderSettings& render_settings,
+                               router::RoutingSettings& routing_settings,
+                               TransportCatalogue& tc,
+                               serialization::SerializationSettings& serialization_settings) {
     json::Node node = document_in.GetRoot();
     
     if (node.IsDict()) {
         
         json::Dict dict = node.AsDict();
         
+        reader::FillInTheSerializationSettings(dict.at("serialization_settings"), serialization_settings);
         reader::FillInTheData(dict.at("base_requests"), tc);
         reader::FillInTheRenderSettings(dict.at("render_settings"), render_settings);
         reader::FillInTheRoutingSettings(dict.at("routing_settings"), routing_settings);
         
+    }
+}
+
+void SplittingDocumentProcessRequests(json::Document& document_in,
+                                      serialization::SerializationSettings& serialization_settings,
+                                      std::vector<StatRequest>& stat_requests) {
+    json::Node node = document_in.GetRoot();
+    
+    if (node.IsDict()) {
+        
+        json::Dict dict = node.AsDict();
+        
+        reader::FillInTheSerializationSettings(dict.at("serialization_settings"), serialization_settings);
+        
         request::ParsingRequest(dict.at("stat_requests"), stat_requests);
         
     }
-    
 }
 
 } //end namespace handling_json

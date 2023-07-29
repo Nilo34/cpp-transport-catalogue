@@ -1,0 +1,25 @@
+syntax = "proto3";
+
+import "svg.proto";
+
+package render_serialize;
+
+message Pair {
+  double first = 1;
+  double second = 2;
+}
+
+message RenderSettings {
+  double width = 1;
+  double height = 2;
+  double padding = 3;
+  double stop_radius = 4;
+  double line_width = 5;
+  int32 bus_label_font_size = 6;
+  Pair bus_label_offset = 7;
+  int32 stop_label_font_size = 8;
+  Pair stop_label_offset = 9;
+  colors_serialize.Color underlayer_color = 10;
+  double underlayer_width = 11;
+  repeated colors_serialize.Color color_palette = 12;
+}

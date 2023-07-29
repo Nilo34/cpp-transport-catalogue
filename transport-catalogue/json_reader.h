@@ -9,11 +9,14 @@
 #include "transport_catalogue.h"
 #include "map_renderer.h"
 #include "transport_router.h"
+#include "serialization.h"
 
 namespace transport_catalogue {
 namespace handling_json {
 
 namespace reader {
+
+void FillInTheSerializationSettings(json::Node& node, serialization::SerializationSettings& serialization_settings);
 
 Stop FillInTheStop(json::Node& node);
 void FillInTheDistances (json::Node& node, TransportCatalogue& tc);
@@ -33,11 +36,14 @@ void ParsingRequest(const json::Node& node, std::vector<StatRequest>& stat_reque
 
 } //end namespace request
 
-void SplittingDocument(json::Document& document_in,
-                       renderer::RenderSettings& render_settings,
-                       router::RoutingSettings& routing_settings,
-                       TransportCatalogue& tc,
-                       std::vector<StatRequest>& stat_requests);
+void SplittingDocumentMakeBase(json::Document& document_in,
+                               renderer::RenderSettings& render_settings,
+                               router::RoutingSettings& routing_settings,
+                               TransportCatalogue& tc,
+                               serialization::SerializationSettings& serialization_settings);
+void SplittingDocumentProcessRequests(json::Document& document_in,
+                                      serialization::SerializationSettings& serialization_settings,
+                                      std::vector<StatRequest>& stat_requests);
 
 } //end namespace handling_json
 } //end namespace transport_catalogue
